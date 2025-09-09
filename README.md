@@ -22,7 +22,7 @@ Get Next Line é uma função C desenvolvida como parte do currículo da 42 Scho
 - **Static Variable Usage**: Maintains state between function calls
 - **Standard Compliant**: Follows 42 School norminette standards
 
-    
+<br> 
 
 - **Suporte Universal a Arquivos:** Funciona com qualquer file descriptor legível
 - **Gerenciamento Dinâmico de Buffer:** Tamanho de buffer configurável de 1 byte a 10MB+
