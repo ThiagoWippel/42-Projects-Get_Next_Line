@@ -38,7 +38,8 @@ The `ft_strdup()` function is responsible for creating a **duplicate of a given 
 
 ---
 
-🔗 Context in get_next_line
+### 🔗 Context in get_next_line
+
 In the get_next_line project, ft_strdup() is essential for safely handling lines. Since the reading buffer is reused across multiple calls, returning its direct content would be unsafe. By duplicating strings, ft_strdup() ensures that each extracted line remains preserved and independent, preventing overwriting in subsequent reads.
 
 ---
@@ -104,7 +105,8 @@ A função `ft_strdup()` é responsável por criar uma **cópia de uma string fo
 
 ---
 
-🔗 Contexto no get_next_line
+### 🔗 Contexto no get_next_line
+
 No projeto get_next_line, ft_strdup() é essencial para manipular linhas de forma segura. Como o buffer utilizado nas leituras é reutilizado a cada chamada, retornar seu conteúdo diretamente seria inseguro. Ao duplicar as strings, ft_strdup() garante que cada linha extraída permaneça preservada e independente, evitando que seja sobrescrita pelo buffer em leituras subsequentes.
 
 ---
