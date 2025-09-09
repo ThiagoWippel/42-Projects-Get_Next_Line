@@ -1,117 +1,115 @@
 # 📋 How `ft_strlen()` Works
 
-The `ft_strlen()` function calculates the **length of a string**, excluding the null terminator. It first checks if the input pointer `s` is valid. If `s` is `NULL`, the function returns `0` to prevent invalid memory access.
+The `ft_strlen()` function calculates the **length of a string** by counting the number of characters until the null terminator (`'\0'`) is found. Unlike the standard library implementation, this version includes an additional safety check for `NULL` pointers, returning `0` when the input string is invalid.
 
 ---
 
 ### 🗂️ Core Structure
 
 * **Input parameter:**
-  `const char *s` → The string whose length will be calculated.
+
+  * `const char *s` → pointer to the string whose length is to be calculated.
+
 * **Local variables:**
 
-  * `len`: counter to store the number of characters in the string.
+  * `size_t len` → counter that stores the number of characters encountered before the null terminator.
 
 ---
 
 ### ✅ Validations
 
 1. **Null pointer check:**
-   If `s` is `NULL`, the function returns `0`, ensuring safety.
+
+   * If `s` is `NULL`, the function immediately returns `0`, avoiding undefined behavior.
 
 ---
 
 ### 🔄 Main Flow
 
-1. **Counting characters:**
-
-   * Initializes `len` to 0.
-   * Iterates through the string until the null terminator is reached, incrementing `len` for each character.
-
-2. **Return length:**
-
-   * After reaching the end, returns `len` representing the number of characters in the string.
+1. Initialize `len` as `0`.
+2. Traverse the string character by character.
+3. Stop when the null terminator `'\0'` is found.
+4. Return the value stored in `len`, which represents the string length.
 
 ---
 
 ### 🔗 Context in get\_next\_line
 
-In the **get\_next\_line** project, `ft_strlen()` is extensively used to determine the size of buffers, backup contents, and lines. Knowing the exact length of a string is essential when allocating memory for duplicates or when manipulating the backup buffer, ensuring safety and correctness in each operation.
+Within the `get_next_line()` project, `ft_strlen()` is widely used in helper functions such as `ft_strdup()`, `ft_substr()`, and `ft_strjoin_free()`. It provides the **fundamental size information** needed to correctly allocate memory when copying, joining, or trimming strings.
 
 ---
 
 ### 📝 Practical Example
 
 ```c
-const char *str = "Hello, world!";
-size_t length = ft_strlen(str);
+const char *text = "Hello!";
+size_t length = ft_strlen(text);
 
 // Result:
-// length = 13
+// length = 6
 ```
 
 ---
 
 ### 🎯 Conclusion
 
-The `ft_strlen()` function provides a **reliable way to measure string length**, which is crucial in `get_next_line` for managing buffers and dynamic memory allocation safely.
+The `ft_strlen()` function ensures a safe and efficient way to calculate the length of a string, supporting other core utilities in `get_next_line()` that depend on precise memory management.
 
 ---
 
 # 📋 Funcionamento da `ft_strlen()`
 
-A função `ft_strlen()` calcula o **tamanho de uma string**, desconsiderando o terminador nulo. Inicialmente, verifica se o ponteiro de entrada `s` é válido. Se `s` for `NULL`, a função retorna `0`, prevenindo acessos inválidos à memória.
+A função `ft_strlen()` calcula o **comprimento de uma string** contando o número de caracteres até encontrar o terminador nulo (`'\0'`). Diferente da implementação da biblioteca padrão, esta versão inclui uma verificação extra de ponteiro `NULL`, retornando `0` quando a string de entrada é inválida.
 
 ---
 
 ### 🗂️ Estrutura de funcionamento
 
 * **Parâmetro de entrada:**
-  `const char *s` → String cujo tamanho será calculado.
+
+  * `const char *s` → ponteiro para a string cujo comprimento será calculado.
+
 * **Variáveis locais:**
 
-  * `len`: contador que armazenará o número de caracteres da string.
+  * `size_t len` → contador que armazena o número de caracteres encontrados antes do terminador nulo.
 
 ---
 
 ### ✅ Validações
 
 1. **Verificação de ponteiro nulo:**
-   Se `s` for `NULL`, a função retorna `0`, garantindo segurança.
+
+   * Se `s` for `NULL`, a função retorna imediatamente `0`, evitando comportamento indefinido.
 
 ---
 
 ### 🔄 Fluxo principal
 
-1. **Contagem de caracteres:**
-
-   * Inicializa `len` com 0.
-   * Percorre a string até encontrar o terminador nulo, incrementando `len` a cada caractere.
-
-2. **Retorno do tamanho:**
-
-   * Ao final, retorna `len`, representando o número de caracteres da string.
+1. Inicializa `len` como `0`.
+2. Percorre a string caractere por caractere.
+3. Para ao encontrar o terminador nulo `'\0'`.
+4. Retorna o valor armazenado em `len`, que representa o tamanho da string.
 
 ---
 
 ### 🔗 Contexto no get\_next\_line
 
-No projeto **get\_next\_line**, `ft_strlen()` é amplamente utilizada para determinar o tamanho de buffers, do conteúdo do backup e das linhas. Conhecer o tamanho exato da string é essencial ao alocar memória para cópias ou manipular o backup, garantindo segurança e precisão em cada operação.
+Dentro do projeto `get_next_line()`, `ft_strlen()` é amplamente utilizada em funções auxiliares como `ft_strdup()`, `ft_substr()` e `ft_strjoin_free()`. Ela fornece a **informação fundamental de tamanho** necessária para a correta alocação de memória ao copiar, juntar ou recortar strings.
 
 ---
 
 ### 📝 Exemplo prático
 
 ```c
-const char *str = "Olá, mundo!";
-size_t tamanho = ft_strlen(str);
+const char *texto = "Olá!";
+size_t tamanho = ft_strlen(texto);
 
 // Resultado:
-// tamanho = 11
+// tamanho = 4
 ```
 
 ---
 
 ### 🎯 Conclusão
 
-A função `ft_strlen()` oferece uma forma **confiável de medir o tamanho de strings**, sendo fundamental no `get_next_line` para o gerenciamento seguro de buffers e da alocação dinâmica de memória.
+A função `ft_strlen()` garante uma forma segura e eficiente de calcular o comprimento de uma string, dando suporte a outras utilidades centrais do `get_next_line()` que dependem de gerenciamento preciso de memória.
