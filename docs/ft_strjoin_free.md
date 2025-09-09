@@ -1,139 +1,127 @@
-# 📋 How `ft_strjoin_free()` Works
+### 💻 Implementation
 
-The `ft_strjoin_free()` function concatenates two strings, `s1` and `s2`, into a **new dynamically allocated string**. After joining, it **frees the memory previously allocated for `s1`**, helping manage memory efficiently and preventing leaks. This is particularly useful in scenarios where strings are progressively built or updated, as in the `get_next_line()` project.
+```c
+char	*ft_strjoin_free(char *s1, const char *s2)
+{
+	char	*str;
+	size_t	len1;
+	size_t	len2;
+	size_t	i;
 
----
-
-### 🗂️ Core Structure
-
-* **Input parameters:**
-
-  * `char *s1` → the first string, which will be freed after joining.
-  * `const char *s2` → the second string to append to `s1`.
-
-* **Return value:**
-
-  * Pointer to the new string containing the concatenation of `s1` and `s2`.
-  * Returns `s1` if `s2` is `NULL`.
-  * Returns `NULL` if memory allocation fails.
-
----
-
-### ✅ Validations
-
-1. **Null pointer handling:**
-
-   * If `s2` is `NULL`, the function simply returns `s1`.
-   * If `s1` is `NULL`, the function duplicates `s2` using `ft_strdup()`.
-
-2. **Memory allocation:**
-
-   * Allocates enough space for `len1 + len2 + 1` characters, including the null terminator.
-   * If allocation fails, frees `s1` and returns `NULL`.
+	if (!s2)
+		return (s1);
+	if (!s1)
+		return (ft_strdup(s2));
+	len1 = ft_strlen(s1);
+	len2 = ft_strlen(s2);
+	str = malloc(len1 + len2 + 1);
+	if (!str)
+		return (free(s1), NULL);
+	i = -1;
+	while (s1 && ++i < len1)
+		str[i] = s1[i];
+	i = -1;
+	while (++i < len2)
+		str[len1 + i] = s2[i];
+	str[len1 + len2] = '\0';
+	return (free(s1), str);
+}
+```
 
 ---
 
-### 🔄 Main Flow
+### 📋 How it works
 
-1. Calculate the lengths of `s1` and `s2` using `ft_strlen()`.
-2. Allocate memory for the new concatenated string.
+The `ft_strjoin_free()` function **concatenates two strings** `s1` and `s2` into a new dynamically allocated string. It also **frees the first string (`s1`)** to manage memory efficiently.
+
+**Input parameters:**
+
+* `char *s1` → first string (will be freed)
+* `const char *s2` → second string to append
+
+**Return value:**
+
+* Pointer to the newly allocated concatenated string
+* `NULL` if memory allocation fails
+
+**Validations:**
+
+1. **Null checks:**
+
+   * Returns `s1` if `s2` is `NULL`
+   * Returns a duplicate of `s2` if `s1` is `NULL`
+2. **Memory allocation check:** returns `NULL` if allocation fails (also frees `s1`)
+
+**Main Flow:**
+
+1. Calculate lengths of `s1` and `s2`.
+2. Allocate memory for combined string including null terminator.
 3. Copy characters from `s1` into the new string.
-4. Append characters from `s2` after the content of `s1`.
-5. Terminate the new string with `'\0'`.
-6. Free the memory of `s1`.
-7. Return the pointer to the new joined string.
+4. Append characters from `s2`.
+5. Add `'\0'` at the end.
+6. Free `s1` and return the new string.
 
----
+**Context in `get_next_line()`:**
+Used to **append the newly read buffer** to the backup string. This allows dynamic accumulation of content while safely managing memory, ensuring no leaks occur during concatenation.
 
-### 🔗 Context in get\_next\_line
-
-In `get_next_line()`, `ft_strjoin_free()` is primarily used in **`read_buffer()`** to append newly read data to the backup buffer. By freeing the previous backup (`s1`) after concatenation, it ensures that memory usage remains controlled while accumulating content until a complete line can be extracted. This makes it **crucial for incremental reading and memory safety**.
-
----
-
-### 📝 Practical Example
+**Example:**
 
 ```c
-char *backup = ft_strdup("Hello");
-backup = ft_strjoin_free(backup, ", world!");
-
-// Result:
-// backup = "Hello, world!" (s1 memory freed)
+char *s1 = ft_strdup("Hello, ");
+char *s2 = "world!";
+char *joined = ft_strjoin_free(s1, s2);
+// joined points to "Hello, world!"
+free(joined);
 ```
 
----
-
-### 🎯 Conclusion
-
-`ft_strjoin_free()` enables **safe and efficient string concatenation** with automatic memory management for the first string. In the context of `get_next_line()`, it is essential for building the backup buffer as data is read from a file.
+**Conclusion:**
+`ft_strjoin_free()` provides efficient string concatenation with automatic memory management of the first operand. In `get_next_line()`, it is critical for **incrementally building the backup buffer** safely and effectively.
 
 ---
 
-# 📋 Funcionamento da `ft_strjoin_free()`
+### 📋 Como funciona
 
-A função `ft_strjoin_free()` concatena duas strings, `s1` e `s2`, em uma **nova string alocada dinamicamente**. Após a concatenação, ela **libera a memória previamente alocada para `s1`**, ajudando a gerenciar a memória de forma eficiente e evitando vazamentos. Isso é especialmente útil quando strings são construídas ou atualizadas progressivamente, como no projeto `get_next_line()`.
+A função `ft_strjoin_free()` **concatena duas strings** `s1` e `s2` em uma nova string alocada dinamicamente, **liberando `s1`** para gerenciamento eficiente de memória.
 
----
+**Parâmetros de entrada:**
 
-### 🗂️ Estrutura de funcionamento
+* `char *s1` → primeira string (será liberada)
+* `const char *s2` → segunda string a ser concatenada
 
-* **Parâmetros de entrada:**
+**Valor de retorno:**
 
-  * `char *s1` → primeira string, que será liberada após a concatenação.
-  * `const char *s2` → segunda string a ser adicionada após `s1`.
+* Ponteiro para a nova string concatenada
+* `NULL` se a alocação de memória falhar
 
-* **Valor de retorno:**
+**Validações:**
 
-  * Ponteiro para a nova string contendo a concatenação de `s1` e `s2`.
-  * Retorna `s1` se `s2` for `NULL`.
-  * Retorna `NULL` se a alocação de memória falhar.
+1. **Verificações nulas:**
 
----
+   * Retorna `s1` se `s2` for `NULL`
+   * Retorna duplicata de `s2` se `s1` for `NULL`
+2. **Verificação de alocação:** retorna `NULL` se a alocação falhar (libera `s1`)
 
-### ✅ Validações
+**Fluxo principal:**
 
-1. **Tratamento de ponteiros nulos:**
-
-   * Se `s2` for `NULL`, a função retorna simplesmente `s1`.
-   * Se `s1` for `NULL`, a função duplica `s2` usando `ft_strdup()`.
-
-2. **Alocação de memória:**
-
-   * Aloca espaço suficiente para `len1 + len2 + 1` caracteres, incluindo o terminador nulo.
-   * Se a alocação falhar, libera `s1` e retorna `NULL`.
-
----
-
-### 🔄 Fluxo principal
-
-1. Calcula os comprimentos de `s1` e `s2` usando `ft_strlen()`.
-2. Aloca memória para a nova string concatenada.
+1. Calcula os comprimentos de `s1` e `s2`.
+2. Aloca memória para a string combinada, incluindo terminador nulo.
 3. Copia os caracteres de `s1` para a nova string.
-4. Adiciona os caracteres de `s2` após o conteúdo de `s1`.
-5. Finaliza a nova string com `'\0'`.
-6. Libera a memória de `s1`.
-7. Retorna o ponteiro para a nova string concatenada.
+4. Adiciona os caracteres de `s2`.
+5. Insere `'\0'` no final.
+6. Libera `s1` e retorna a nova string.
 
----
+**Contexto no `get_next_line()`:**
+Usada para **adicionar o buffer recém-lido** ao backup. Permite acumular conteúdo dinamicamente enquanto gerencia memória com segurança, evitando vazamentos durante a concatenação.
 
-### 🔗 Contexto no get\_next\_line
-
-No `get_next_line()`, `ft_strjoin_free()` é usado principalmente em **`read_buffer()`** para adicionar os novos dados lidos ao buffer de backup. Ao liberar o backup anterior (`s1`) após a concatenação, garante que o uso de memória seja controlado enquanto o conteúdo é acumulado até que uma linha completa possa ser extraída. Isso o torna **crucial para a leitura incremental e segurança de memória**.
-
----
-
-### 📝 Exemplo prático
+**Exemplo prático:**
 
 ```c
-char *backup = ft_strdup("Olá");
-backup = ft_strjoin_free(backup, ", mundo!");
-
-// Resultado:
-// backup = "Olá, mundo!" (memória de s1 liberada)
+char *s1 = ft_strdup("Olá, ");
+char *s2 = "mundo!";
+char *joined = ft_strjoin_free(s1, s2);
+// joined aponta para "Olá, mundo!"
+free(joined);
 ```
 
----
-
-### 🎯 Conclusão
-
-`ft_strjoin_free()` permite a **concatenação segura e eficiente de strings**, com gerenciamento automático da memória da primeira string. No contexto do `get_next_line()`, é essencial para construir o buffer de backup à medida que os dados são lidos de um arquivo.
+**Conclusão:**
+`ft_strjoin_free()` oferece concatenação eficiente de strings com gerenciamento automático da memória do primeiro operando. No `get_next_line()`, é essencial para **construir incrementalmente o buffer de backup** de forma segura e eficaz.
