@@ -1,6 +1,6 @@
 # 📋 How `read_buffer()` Works
 
-The `read_buffer()` function is responsible for **reading data from the file descriptor** and storing it in the `backup` buffer for further processing by `get_next_line()`. It ensures that newly read data is correctly concatenated with any leftover data already stored.
+The `read_buffer()` function handles **reading a portion of data** from a file descriptor `fd` into a temporary buffer, then appends this data to the existing backup using `ft_strjoin_free()`. It ensures that the backup accumulates the file content incrementally, which is essential for extracting complete lines in `get_next_line()`.
 
 ---
 
@@ -8,75 +8,76 @@ The `read_buffer()` function is responsible for **reading data from the file des
 
 * **Input parameters:**
 
-  * `int fd` → file descriptor to read from.
-  * `char **backup` → pointer to the dynamic buffer that accumulates data until a complete line is found.
+  * `int fd` → the file descriptor from which data is read.
+  * `char **backup` → pointer to the backup buffer where read data will be appended.
 
-* **Local variables:**
+* **Return value:**
 
-  * `char buffer[BUFFER_SIZE + 1]` → temporary buffer to hold freshly read data.
-  * `int bytes_read` → number of bytes returned by the `read()` system call.
+  * Number of bytes read if successful.
+  * `0` if the end of the file (EOF) is reached.
+  * `-1` if an error occurs (allocation failure or read error).
 
 ---
 
 ### ✅ Validations
 
-1. **Error or EOF:**
+1. **Memory allocation:**
 
-   * If `read()` returns `-1`, it indicates an error.
-   * If it returns `0`, it means EOF was reached.
-   * In both cases, the function immediately returns this value without modifying `backup`.
+   * Allocates `BUFFER_SIZE + 1` bytes for the temporary buffer.
+   * Returns `-1` if allocation fails.
 
-2. **Successful read:**
+2. **Read operation:**
 
-   * The buffer is null-terminated (`buffer[bytes_read] = '\0'`).
-   * The new content is concatenated to the existing `backup` using `ft_strjoin_free()`.
-   * If memory allocation fails inside `ft_strjoin_free()`, `NULL` is set, and the function returns `-1`.
+   * Uses `read()` to fetch up to `BUFFER_SIZE` bytes from `fd`.
+   * If `read()` returns `0` (EOF) or negative (error), frees the temporary buffer and returns the corresponding value.
+
+3. **Backup concatenation:**
+
+   * Appends the newly read buffer to `*backup` using `ft_strjoin_free()`.
+   * Frees the temporary buffer after joining.
+   * Returns `-1` if joining fails.
 
 ---
 
 ### 🔄 Main Flow
 
-1. Call `read()` to fill the temporary buffer.
-2. If `bytes_read <= 0`, return this value directly.
-3. Null-terminate the buffer to handle it as a string.
-4. Concatenate the new data to `backup`.
-5. If concatenation fails, return `-1`.
-6. Otherwise, return the number of bytes read.
+1. Allocate a temporary buffer of size `BUFFER_SIZE + 1`.
+2. Read data from the file descriptor into the buffer.
+3. Null-terminate the buffer at `bytes_read`.
+4. Append the buffer to the backup using `ft_strjoin_free()`.
+5. Free the temporary buffer.
+6. Return the number of bytes read or an error code.
 
 ---
 
 ### 🔗 Context in get\_next\_line
 
-This function is called inside the main loop of `get_next_line()` to continuously read data from the file descriptor. Its role is to **feed the backup with chunks of data** until a full line is available or EOF is reached.
+In `get_next_line()`, `read_buffer()` is called **inside the main loop** when the backup does not yet contain a complete line. It incrementally reads the file in chunks of `BUFFER_SIZE`, adding the data to the backup buffer until a complete line can be extracted. This function ensures **efficient reading** and proper handling of EOF and errors.
 
 ---
 
 ### 📝 Practical Example
 
 ```c
-// Suppose fd contains: "Hello\nWorld\n"
-char *backup = NULL;
+char *backup = ft_strdup("");
+int bytes = read_buffer(fd, &backup);
 
-// First call
-int ret = read_buffer(fd, &backup);
-// ret > 0, backup = "Hello\n"
-
-// Second call
-ret = read_buffer(fd, &backup);
-// ret > 0, backup = "Hello\nWorld\n"
+// Result:
+// backup now contains the first BUFFER_SIZE bytes read from fd
+// bytes holds the number of bytes read (or 0/-1)
 ```
 
 ---
 
 ### 🎯 Conclusion
 
-The `read_buffer()` function is a **low-level helper** in `get_next_line()`, ensuring that chunks of data read from the file descriptor are correctly appended to the backup. It bridges the gap between the raw `read()` system call and the higher-level logic that extracts lines.
+`read_buffer()` provides **incremental reading and safe concatenation** of file content into the backup buffer. It is a core component of `get_next_line()` for handling files of arbitrary length efficiently.
 
 ---
 
 # 📋 Funcionamento da `read_buffer()`
 
-A função `read_buffer()` é responsável por **ler dados do descritor de arquivo** e armazená-los no buffer `backup` para processamento posterior pelo `get_next_line()`. Ela garante que os novos dados lidos sejam concatenados corretamente com qualquer dado remanescente já armazenado.
+A função `read_buffer()` é responsável por **ler uma porção de dados** de um descritor de arquivo `fd` para um buffer temporário e, em seguida, adicionar esses dados ao backup existente usando `ft_strjoin_free()`. Isso garante que o backup acumule o conteúdo do arquivo de forma incremental, essencial para extrair linhas completas em `get_next_line()`.
 
 ---
 
@@ -84,66 +85,67 @@ A função `read_buffer()` é responsável por **ler dados do descritor de arqui
 
 * **Parâmetros de entrada:**
 
-  * `int fd` → descritor de arquivo do qual será feita a leitura.
-  * `char **backup` → ponteiro para o buffer dinâmico que acumula dados até que uma linha completa seja formada.
+  * `int fd` → descritor de arquivo do qual os dados serão lidos.
+  * `char **backup` → ponteiro para o buffer de backup onde os dados lidos serão adicionados.
 
-* **Variáveis locais:**
+* **Valor de retorno:**
 
-  * `char buffer[BUFFER_SIZE + 1]` → buffer temporário que armazena os dados recém-lidos.
-  * `int bytes_read` → quantidade de bytes retornada pela chamada ao `read()`.
+  * Número de bytes lidos se bem-sucedido.
+  * `0` se atingir o fim do arquivo (EOF).
+  * `-1` se ocorrer um erro (falha de alocação ou erro na leitura).
 
 ---
 
 ### ✅ Validações
 
-1. **Erro ou EOF:**
+1. **Alocação de memória:**
 
-   * Se `read()` retornar `-1`, houve erro.
-   * Se retornar `0`, significa que o EOF foi alcançado.
-   * Em ambos os casos, a função retorna imediatamente esse valor sem modificar o `backup`.
+   * Aloca `BUFFER_SIZE + 1` bytes para o buffer temporário.
+   * Retorna `-1` se a alocação falhar.
 
-2. **Leitura bem-sucedida:**
+2. **Operação de leitura:**
 
-   * O buffer é finalizado com `'\0'` (`buffer[bytes_read] = '\0'`).
-   * O conteúdo lido é concatenado ao `backup` com `ft_strjoin_free()`.
-   * Se a alocação falhar dentro de `ft_strjoin_free()`, `backup` é liberado e a função retorna `-1`.
+   * Usa `read()` para buscar até `BUFFER_SIZE` bytes de `fd`.
+   * Se `read()` retornar `0` (EOF) ou negativo (erro), libera o buffer temporário e retorna o valor correspondente.
+
+3. **Concatenação ao backup:**
+
+   * Adiciona o buffer lido a `*backup` usando `ft_strjoin_free()`.
+   * Libera o buffer temporário após a junção.
+   * Retorna `-1` se a junção falhar.
 
 ---
 
 ### 🔄 Fluxo principal
 
-1. Chama `read()` para preencher o buffer temporário.
-2. Se `bytes_read <= 0`, retorna esse valor imediatamente.
-3. Finaliza o buffer com `'\0'`.
-4. Concatena o conteúdo lido ao `backup`.
-5. Se a concatenação falhar, retorna `-1`.
-6. Caso contrário, retorna a quantidade de bytes lidos.
+1. Aloca um buffer temporário de tamanho `BUFFER_SIZE + 1`.
+2. Lê dados do descritor de arquivo para o buffer.
+3. Adiciona o terminador nulo `\0` no final do buffer.
+4. Adiciona o buffer ao backup usando `ft_strjoin_free()`.
+5. Libera o buffer temporário.
+6. Retorna o número de bytes lidos ou código de erro.
 
 ---
 
 ### 🔗 Contexto no get\_next\_line
 
-Essa função é chamada dentro do loop principal de `get_next_line()` para ler continuamente dados do descritor de arquivo. Seu papel é **alimentar o backup com blocos de dados** até que uma linha completa esteja disponível ou até o EOF.
+Em `get_next_line()`, `read_buffer()` é chamado **dentro do loop principal** quando o backup ainda não contém uma linha completa. Ele lê o arquivo incrementalmente em blocos de `BUFFER_SIZE`, adicionando os dados ao backup até que seja possível extrair uma linha completa. Esta função garante **leitura eficiente** e tratamento adequado de EOF e erros.
 
 ---
 
 ### 📝 Exemplo prático
 
 ```c
-// Suponha que fd contenha: "Ola\nMundo\n"
-char *backup = NULL;
+char *backup = ft_strdup("");
+int bytes = read_buffer(fd, &backup);
 
-// Primeira chamada
-int ret = read_buffer(fd, &backup);
-// ret > 0, backup = "Ola\n"
-
-// Segunda chamada
-ret = read_buffer(fd, &backup);
-// ret > 0, backup = "Ola\nMundo\n"
+// Resultado:
+// backup agora contém os primeiros BUFFER_SIZE bytes lidos de fd
+// bytes contém o número de bytes lidos (ou 0/-1)
 ```
 
 ---
 
 ### 🎯 Conclusão
 
-A função `read_buffer()` atua como um **auxiliar de baixo nível** no `get_next_line()`, garantindo que os blocos de dados lidos do descritor de arquivo sejam corretamente adicionados ao backup. Ela faz a ponte entre a chamada bruta ao `read()` e a lógica de mais alto nível que extrai linhas completas.
+`read_buffer()` permite a **leitura incremental e concatenação segura** do conteúdo do arquivo no backup. É um componente central do `get_next_line()` para manipular arquivos de qualquer tamanho de forma eficiente.
