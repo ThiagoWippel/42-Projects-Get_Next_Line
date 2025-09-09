@@ -77,7 +77,7 @@ Regardless of the value of `BUFFER_SIZE`, each call to `get_next_line()` always 
 
 ---
 
-# 📋 Funcionamento da `get_next_line()`
+# 📋 Funcionamento de `get_next_line()`
 
 A função `get_next_line()` tem como objetivo retornar, a cada chamada, **uma única linha** de um arquivo ou da entrada padrão. Ela recebe como parâmetro um inteiro `fd`, que representa o descritor de arquivo a ser lido, e retorna um ponteiro para `char` contendo a linha obtida.
 
