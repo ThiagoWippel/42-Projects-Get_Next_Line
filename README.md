@@ -16,11 +16,17 @@ Get Next Line é uma função C desenvolvida como parte do currículo da 42 Scho
 
 ### Key Features / Características Principais
 
-- **Universal File Support / Suporte Universal a Arquivos**: Works with any readable file descriptor / Funciona com qualquer file descriptor legível
-- **Dynamic Buffer Management / Gerenciamento Dinâmico de Buffer**: Configurable buffer size from 1 byte to 10MB+ / Tamanho de buffer configurável de 1 byte a 10MB+
-- **Memory Safe / Seguro em Memória**: Zero memory leaks with proper cleanup / Zero vazamentos de memória com limpeza adequada
-- **Static Variable Usage / Uso de Variáveis Estáticas**: Maintains state between function calls / Mantém estado entre chamadas da função
-- **Standard Compliant / Conforme Padrões**: Follows 42 School norminette standards / Segue os padrões norminette da 42 School
+- **Universal File Support**: Works with any readable file descriptor
+- **Dynamic Buffer Management**: Configurable buffer size from 1 byte to 10MB+
+- **Memory Safe**: Zero memory leaks with proper cleanup
+- **Static Variable Usage**: Maintains state between function calls
+- **Standard Compliant**: Follows 42 School norminette standards
+
+- **Suporte Universal a Arquivos:** Funciona com qualquer file descriptor legível
+- **Gerenciamento Dinâmico de Buffer:** Tamanho de buffer configurável de 1 byte a 10MB+
+- **Seguro em Memória:** Zero vazamentos de memória com limpeza adequada
+- **Uso de Variáveis Estáticas:** Mantém estado entre chamadas da função
+- **Conforme Padrões** Segue os padrões norminette da 42 School
 
 ## Technical Specifications / Especificações Técnicas
 
