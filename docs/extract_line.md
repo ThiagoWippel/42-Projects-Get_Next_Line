@@ -1,135 +1,115 @@
-# 📋 How `extract_line()` Works
+### 💻 Implementation
 
-The `extract_line()` function is responsible for **isolating and returning the next complete line** from the `backup` buffer, including the newline character (`'\n'`). After extracting the line, it updates `backup` so that it only contains the remaining content to be processed in future calls.
+```c
+static char	*extract_line(char **backup)
+{
+	char	*newline_pos;
+	char	*line;
+	char	*temp;
+	size_t	line_len;
 
----
-
-### 🗂️ Core Structure
-
-* **Input parameter:**
-
-  * `char **backup` → pointer to the buffer that stores the accumulated data read from the file descriptor.
-
-* **Local variables:**
-
-  * `char *newline_pos` → pointer to the first occurrence of `'\n'` in `backup`.
-  * `char *line` → stores the newly extracted line.
-  * `char *temp` → temporary buffer holding the remaining content after the extracted line.
-  * `size_t line_len` → length of the line to extract, including the newline.
-
----
-
-### ✅ Validations
-
-1. **Check for newline:**
-
-   * If `'\n'` is not found, the function returns `NULL`, since no complete line is available yet.
-
-2. **Memory allocation checks:**
-
-   * If `ft_substr()` fails to allocate memory when creating the line, the function returns `NULL`.
+	newline_pos = ft_strchr(*backup, '\n');
+	if (!newline_pos)
+		return (NULL);
+	line_len = newline_pos - *backup + 1;
+	line = ft_substr(*backup, 0, line_len);
+	if (!line)
+		return (NULL);
+	temp = ft_substr(*backup, line_len, ft_strlen(*backup) - line_len);
+	free(*backup);
+	*backup = temp;
+	return (line);
+}
+```
 
 ---
 
-### 🔄 Main Flow
+### 📋 How it works
 
-1. Search for the newline character in `backup` with `ft_strchr()`.
-2. If found, calculate the line length (`line_len`).
-3. Extract the line from `backup` using `ft_substr(*backup, 0, line_len)`.
-4. Extract the remaining content after the line into `temp`.
-5. Free the old `backup` and update it with the new value (`temp`).
+The `extract_line()` function **extracts a single line** from the backup buffer, including the newline character. It updates the backup to contain the remaining content after the extracted line.
+
+**Input parameter:**
+
+* `char **backup` → pointer to the backup buffer containing accumulated text
+
+**Return value:**
+
+* Pointer to the newly allocated string containing the extracted line
+* `NULL` if no newline is found or memory allocation fails
+
+**Validations:**
+
+1. Checks if a newline character exists in the backup
+2. Returns `NULL` immediately if no newline is found
+
+**Main Flow:**
+
+1. Find the position of the first newline character in the backup using `ft_strchr()`.
+2. Calculate the length of the line to extract, including the newline.
+3. Allocate and copy the line into a new string using `ft_substr()`.
+4. Allocate a new string for the remaining content after the extracted line.
+5. Free the old backup and update it with the remaining content.
 6. Return the extracted line.
 
----
+**Context in `get_next_line()`:**
+Used to **return complete lines** from the backup buffer. Each call to `get_next_line()` relies on `extract_line()` to provide the next line and update the backup correctly for subsequent reads.
 
-### 🔗 Context in get\_next\_line
-
-This function is the **core mechanism for line extraction** in `get_next_line()`. Each time data is read into `backup`, `extract_line()` checks if a newline is present and, if so, returns that complete line. It ensures that leftover content remains available for subsequent reads.
-
----
-
-### 📝 Practical Example
+**Example:**
 
 ```c
-// Suppose backup = "Hello\nWorld\n"
+char *backup = ft_strdup("Hello\nWorld\n");
 char *line = extract_line(&backup);
-
-// Result:
-// line   = "Hello\n"
-// backup = "World\n"
+// line points to "Hello\n"
+// backup now contains "World\n"
+free(line);
+free(backup);
 ```
 
----
-
-### 🎯 Conclusion
-
-The `extract_line()` function ensures that the program can **progressively extract complete lines** from the `backup` buffer while preserving the remaining data for the next call. It is the fundamental step that transforms raw buffered data into properly terminated lines.
+**Conclusion:**
+`extract_line()` is a core utility in `get_next_line()`, enabling **line-by-line reading** by splitting the backup buffer safely and efficiently.
 
 ---
 
-# 📋 Funcionamento da `extract_line()`
+### 📋 Como funciona
 
-A função `extract_line()` é responsável por **isolar e retornar a próxima linha completa** do buffer `backup`, incluindo o caractere de quebra de linha (`'\n'`). Após extrair a linha, ela atualiza o `backup` para que contenha apenas o conteúdo restante a ser processado nas próximas chamadas.
+A função `extract_line()` **extrai uma linha única** do buffer de backup, incluindo o caractere de nova linha. Ela atualiza o backup para conter o conteúdo restante após a linha extraída.
 
----
+**Parâmetro de entrada:**
 
-### 🗂️ Estrutura de funcionamento
+* `char **backup` → ponteiro para o buffer de backup contendo o texto acumulado
 
-* **Parâmetro de entrada:**
+**Valor de retorno:**
 
-  * `char **backup` → ponteiro para o buffer que armazena os dados acumulados lidos do descritor de arquivo.
+* Ponteiro para a nova string contendo a linha extraída
+* `NULL` se não houver nova linha ou se a alocação falhar
 
-* **Variáveis locais:**
+**Validações:**
 
-  * `char *newline_pos` → ponteiro para a primeira ocorrência de `'\n'` em `backup`.
-  * `char *line` → armazena a linha recém-extraída.
-  * `char *temp` → buffer temporário contendo o conteúdo restante após a linha extraída.
-  * `size_t line_len` → tamanho da linha a ser extraída, incluindo o `\n`.
+1. Verifica se existe um caractere de nova linha no backup
+2. Retorna `NULL` imediatamente se não encontrar
 
----
+**Fluxo principal:**
 
-### ✅ Validações
-
-1. **Verificação de newline:**
-
-   * Se `'\n'` não for encontrado, a função retorna `NULL`, pois não há linha completa disponível ainda.
-
-2. **Verificação de alocação de memória:**
-
-   * Se `ft_substr()` falhar ao criar a linha, a função retorna `NULL`.
-
----
-
-### 🔄 Fluxo principal
-
-1. Busca o caractere `\n` em `backup` com `ft_strchr()`.
-2. Se encontrado, calcula o comprimento da linha (`line_len`).
-3. Extrai a linha de `backup` usando `ft_substr(*backup, 0, line_len)`.
-4. Extrai o conteúdo restante em `temp`.
-5. Libera o `backup` antigo e atualiza-o com o novo valor (`temp`).
+1. Localiza a posição da primeira nova linha no backup usando `ft_strchr()`.
+2. Calcula o tamanho da linha a ser extraída, incluindo o `\n`.
+3. Aloca e copia a linha para uma nova string usando `ft_substr()`.
+4. Aloca uma nova string para o conteúdo restante após a linha extraída.
+5. Libera o backup antigo e atualiza-o com o conteúdo restante.
 6. Retorna a linha extraída.
 
----
+**Contexto no `get_next_line()`:**
+Usada para **retornar linhas completas** do buffer de backup. Cada chamada de `get_next_line()` depende de `extract_line()` para fornecer a próxima linha e atualizar o backup corretamente para leituras subsequentes.
 
-### 🔗 Contexto no get\_next\_line
-
-Essa função é o **mecanismo central de extração de linhas** no `get_next_line()`. A cada vez que dados são lidos para `backup`, `extract_line()` verifica se há uma quebra de linha presente e, em caso positivo, retorna essa linha completa. Assim, garante que o conteúdo remanescente continue disponível para as próximas leituras.
-
----
-
-### 📝 Exemplo prático
+**Exemplo prático:**
 
 ```c
-// Suponha backup = "Ola\nMundo\n"
+char *backup = ft_strdup("Olá\nMundo\n");
 char *linha = extract_line(&backup);
-
-// Resultado:
-// linha  = "Ola\n"
-// backup = "Mundo\n"
+// linha aponta para "Olá\n"
+// backup agora contém "Mundo\n"
+free(linha);
+free(backup);
 ```
 
----
-
-### 🎯 Conclusão
-
-A função `extract_line()` garante que o programa consiga **extrair progressivamente linhas completas** do buffer `backup`, preservando o conteúdo restante para a próxima chamada. Ela é o passo fundamental que transforma dados brutos em linhas corretamente terminadas.
+**Conclusão:**
+`extract_line()` é uma função essencial em `get_next_line()`, permitindo a leitura **linha a linha** ao dividir o buffer de backup de forma segura e eficiente.
