@@ -1,173 +1,134 @@
-# 📋 How `get_next_line()` Works
-
-The `get_next_line()` function is designed to **read one line at a time** from a file descriptor, making it reusable across multiple calls until the end of the file is reached. It uses a static buffer (`backup`) to retain leftover content between function calls, ensuring continuity when a line spans multiple reads.
-
----
-
-### 🗂️ Core Structure
-
-* **Input parameter:**
-  `int fd` → the file descriptor from which the function will read.
-
-* **Static variable:**
-  `static char *backup` → keeps track of leftover characters that were not yet returned.
-
-* **Local variables:**
-
-  * `char *line` → pointer to hold the line ready to be returned.
-  * `int read_result` → indicates the outcome of reading: number of bytes read, error, or EOF.
-
----
-
-### ✅ Validations
-
-1. **Invalid arguments:**
-   If `fd < 0` or `BUFFER_SIZE <= 0`, the function immediately returns `NULL`.
-
-2. **Backup check:**
-   The function first calls `initialize_backup(&backup)` to verify if the backup already contains a complete line. If so, that line is returned without reading more data.
-
----
-
-### 🔄 Main Flow
-
-1. **Loop structure:**
-   The function enters an infinite loop to keep reading until a line is ready or EOF is reached.
-
-2. **Reading from file:**
-   Calls `read_buffer(fd, &backup)` to read chunks of data and append them to the backup.
-
-   * If `read_buffer` returns `-1`, an error occurred → free `backup`, reset it to `NULL`, and return `NULL`.
-   * If `read_buffer` returns `0`, it means EOF → call `return_remaining_content(&backup)` to return the last data (if any).
-
-3. **Extracting a line:**
-   After each read, the function calls `extract_line(&backup)` to check if a newline (`\n`) exists in the backup.
-
-   * If a line is found, it is returned immediately.
-   * If not, the loop continues to read more data.
-
----
-
-### 🔗 Context in get\_next\_line
-
-This function acts as the **orchestrator** of the entire process:
-
-* It validates inputs.
-* It coordinates reading data into the backup.
-* It extracts complete lines when available.
-* It properly handles EOF and errors.
-
-The use of a **static backup** is crucial, as it ensures partial reads are preserved across multiple calls, making the function reliable regardless of the `BUFFER_SIZE`.
-
----
-
-### 📝 Practical Example
+### 💻 Implementation
 
 ```c
-int fd = open("example.txt", O_RDONLY);
-char *line;
-
-while ((line = get_next_line(fd)) != NULL)
+char	*get_next_line(int fd)
 {
-    printf("%s", line);
-    free(line);
-}
+	static char	*backup;
+	char		*line;
+	int			read_result;
 
-// Output: prints the file content line by line
+	if (fd < 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	line = initialize_backup(&backup);
+	if (line)
+		return (line);
+	while (1)
+	{
+		read_result = read_buffer(fd, &backup);
+		if (read_result == -1)
+		{
+			free(backup);
+			backup = NULL;
+			return (NULL);
+		}
+		if (read_result == 0)
+			return (return_remaining_content(&backup));
+		line = extract_line(&backup);
+		if (line)
+			return (line);
+	}
+}
 ```
 
 ---
 
-### 🎯 Conclusion
+### 📋 How it works
 
-`get_next_line()` provides a **line-by-line reading mechanism** that is both efficient and memory-safe. By leveraging helper functions like `initialize_backup`, `read_buffer`, `extract_line`, and `return_remaining_content`, it guarantees a clean separation of responsibilities and ensures robust file reading behavior across different scenarios.
+The `get_next_line()` function **reads the next line from a file descriptor** `fd` each time it is called. It uses a static backup buffer to store leftover data between calls, ensuring lines are returned incrementally and memory is safely managed.
 
----
+**Input parameters:**
 
-# 📋 Funcionamento da `get_next_line()`
+* `int fd` → file descriptor to read from
 
-A função `get_next_line()` foi projetada para **ler uma linha por vez** de um descritor de arquivo, sendo chamada repetidamente até que o fim do arquivo seja atingido. Ela utiliza um buffer estático (`backup`) para armazenar dados remanescentes entre chamadas, garantindo continuidade quando uma linha ocupa múltiplas leituras.
+**Return value:**
 
----
+* Pointer to the next line, including the newline character if present
+* `NULL` if end-of-file is reached, an error occurs, or `fd`/`BUFFER_SIZE` is invalid
 
-### 🗂️ Estrutura de funcionamento
+**Validations:**
 
-* **Parâmetro de entrada:**
-  `int fd` → descritor de arquivo de onde a função irá ler.
+1. Checks if `fd` is negative or `BUFFER_SIZE` is invalid.
+2. Initializes the backup buffer using `initialize_backup()`.
+3. Handles errors from `read_buffer()` and frees memory as needed.
+4. Returns remaining content at end-of-file using `return_remaining_content()`.
 
-* **Variável estática:**
-  `static char *backup` → armazena caracteres que ainda não foram retornados.
+**Main Flow:**
 
-* **Variáveis locais:**
+1. Validate `fd` and `BUFFER_SIZE`.
+2. Attempt to extract a line immediately from the backup.
+3. Enter a loop:
 
-  * `char *line` → ponteiro para armazenar a linha pronta para ser retornada.
-  * `int read_result` → indica o resultado da leitura: número de bytes lidos, erro ou EOF.
+   * Read from the file descriptor into the backup using `read_buffer()`.
+   * If an error occurs, free backup and return `NULL`.
+   * If end-of-file is reached, return remaining content.
+   * Attempt to extract a line from backup; return if found.
 
----
+**Context in `get_next_line()`:**
+This is the **core function** of the project. It orchestrates reading from the file descriptor, manages the backup buffer, handles memory safely, and ensures lines are returned correctly on each call.
 
-### ✅ Validações
-
-1. **Argumentos inválidos:**
-   Se `fd < 0` ou `BUFFER_SIZE <= 0`, a função retorna imediatamente `NULL`.
-
-2. **Verificação do backup:**
-   A função chama `initialize_backup(&backup)` para verificar se o backup já contém uma linha completa. Se sim, essa linha é retornada sem necessidade de novas leituras.
-
----
-
-### 🔄 Fluxo principal
-
-1. **Estrutura de loop:**
-   A função entra em um loop infinito, lendo até que uma linha esteja pronta ou EOF seja encontrado.
-
-2. **Leitura do arquivo:**
-   Chama `read_buffer(fd, &backup)` para ler blocos de dados e adicioná-los ao backup.
-
-   * Se `read_buffer` retornar `-1`, ocorreu um erro → libera `backup`, reseta para `NULL` e retorna `NULL`.
-   * Se `read_buffer` retornar `0`, significa EOF → chama `return_remaining_content(&backup)` para retornar os últimos dados (se houver).
-
-3. **Extração de linha:**
-   Após cada leitura, chama `extract_line(&backup)` para verificar se existe um caractere de nova linha (`\n`) no backup.
-
-   * Se uma linha for encontrada, ela é retornada imediatamente.
-   * Caso contrário, o loop continua lendo mais dados.
-
----
-
-### 🔗 Contexto no get\_next\_line
-
-Esta função atua como o **orquestrador** de todo o processo:
-
-* Valida os parâmetros de entrada.
-* Coordena a leitura de dados no backup.
-* Extrai linhas completas quando disponíveis.
-* Trata adequadamente EOF e erros.
-
-O uso de um **backup estático** é essencial, pois garante que leituras parciais sejam preservadas entre chamadas, tornando a função confiável independentemente do `BUFFER_SIZE`.
-
----
-
-### 📝 Exemplo prático
+**Example:**
 
 ```c
-int fd = open("exemplo.txt", O_RDONLY);
+int fd = open("file.txt", O_RDONLY);
 char *line;
 
-while ((line = get_next_line(fd)) != NULL)
+while ((line = get_next_line(fd)))
 {
     printf("%s", line);
     free(line);
 }
-
-// Saída: imprime o conteúdo do arquivo linha por linha
+close(fd);
 ```
 
 ---
 
-### 🎯 Conclusão
+### 📋 Como funciona
 
-`get_next_line()` fornece um **mecanismo de leitura linha a linha** eficiente e seguro quanto ao uso de memória. Ao delegar responsabilidades para funções auxiliares como `initialize_backup`, `read_buffer`, `extract_line` e `return_remaining_content`, garante uma separação clara de responsabilidades e um comportamento robusto na leitura de arquivos em diversos cenários.
+A função `get_next_line()` **lê a próxima linha de um descritor de arquivo** `fd` a cada chamada. Ela utiliza um buffer de backup estático para armazenar dados remanescentes entre chamadas, garantindo que as linhas sejam retornadas incrementalmente e a memória seja gerenciada com segurança.
 
----
+**Parâmetros de entrada:**
 
-Quer que eu já prepare a próxima documentação para `initialize_backup()`?
+* `int fd` → descritor de arquivo para leitura
+
+**Valor de retorno:**
+
+* Ponteiro para a próxima linha, incluindo o caractere de nova linha, se presente
+* `NULL` se o fim do arquivo for alcançado, ocorrer erro, ou `fd`/`BUFFER_SIZE` for inválido
+
+**Validações:**
+
+1. Verifica se `fd` é negativo ou `BUFFER_SIZE` inválido.
+2. Inicializa o buffer de backup usando `initialize_backup()`.
+3. Trata erros de `read_buffer()` e libera memória conforme necessário.
+4. Retorna o conteúdo restante ao final do arquivo usando `return_remaining_content()`.
+
+**Fluxo principal:**
+
+1. Valida `fd` e `BUFFER_SIZE`.
+2. Tenta extrair uma linha imediatamente do backup.
+3. Entra em um loop:
+
+   * Lê do descritor para o backup usando `read_buffer()`.
+   * Em caso de erro, libera backup e retorna `NULL`.
+   * Se atingir fim do arquivo, retorna o conteúdo restante.
+   * Tenta extrair uma linha do backup; retorna se encontrada.
+
+**Contexto no `get_next_line()`:**
+Esta é a **função principal** do projeto. Ela orquestra a leitura do arquivo, gerencia o buffer de backup, assegura a alocação e liberação correta da memória e garante que as linhas sejam retornadas corretamente a cada chamada.
+
+**Exemplo prático:**
+
+```c
+int fd = open("arquivo.txt", O_RDONLY);
+char *linha;
+
+while ((linha = get_next_line(fd)))
+{
+    printf("%s", linha);
+    free(linha);
+}
+close(fd);
+```
+
+**Conclusão:**
+`get_next_line()` implementa uma **leitura incremental segura de linhas**, com gerenciamento eficiente de memória e manipulação correta do buffer de backup, sendo a função central do projeto.
