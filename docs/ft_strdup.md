@@ -1,131 +1,129 @@
 # 📋 How `ft_strdup()` Works
 
-The `ft_strdup()` function is responsible for creating a **duplicate of a given string**, returning a newly allocated copy of it. This implementation mirrors the behavior of the standard `strdup()` function from the C library, ensuring that the returned string is stored in **independent memory**, which must later be freed by the caller.
+The `ft_strdup()` function creates a **new copy of the given string** `s`. It allocates memory dynamically, duplicates all characters from the original string, and appends a null terminator `\0` at the end. This ensures that the new string is **independent** of the original, preventing unintended modifications.
 
 ---
 
 ### 🗂️ Core Structure
 
 * **Input parameter:**
-  `const char *s` → The string to be duplicated.
-* **Local variables:**
 
-  * `len`: holds the length of the original string, calculated using `ft_strlen()`.
-  * `dup`: pointer to the new memory space where the copy will be stored.
-  * `i`: iteration index used during the copying process.
+  * `const char *s` → the string to duplicate.
+
+* **Return value:**
+
+  * Pointer to the newly allocated copy of `s`.
+  * `NULL` if `s` is invalid or if memory allocation fails.
 
 ---
 
 ### ✅ Validations
 
 1. **Null pointer check:**
-   If `s` is `NULL`, the function returns `NULL`, preventing invalid memory access.
-2. **Memory allocation:**
 
-   * The function allocates `len + 1` bytes to store the copy of the string plus the null terminator.
-   * If memory allocation fails, it returns `NULL`.
+   * If `s` is `NULL`, the function returns `NULL`.
+
+2. **Memory allocation check:**
+
+   * If memory allocation fails, the function returns `NULL`.
 
 ---
 
 ### 🔄 Main Flow
 
-1. **Copying characters:**
-
-   * Each character from the original string is copied one by one into the allocated space (`dup[i] = s[i]`).
-2. **String termination:**
-
-   * After copying, the null terminator `\0` is explicitly added at the end to ensure proper string termination.
+1. Calculate the length of `s` using `ft_strlen()`.
+2. Allocate memory for a copy including the null terminator.
+3. Copy each character from `s` into the new memory.
+4. Append `'\0'` to terminate the string.
+5. Return the pointer to the duplicated string.
 
 ---
 
-### 🔗 Context in get_next_line
+### 🔗 Context in get\_next\_line
 
-In the get_next_line project, ft_strdup() is essential for safely handling lines. Since the reading buffer is reused across multiple calls, returning its direct content would be unsafe. By duplicating strings, ft_strdup() ensures that each extracted line remains preserved and independent, preventing overwriting in subsequent reads.
+In the `get_next_line()` project, `ft_strdup()` is essential for **initializing the backup buffer**. When no previous backup exists, `ft_strdup("")` is used to start with a valid empty string. It is also used to **duplicate remaining content** at the end of the file before freeing the original backup, ensuring that no data is lost and memory safety is maintained.
 
 ---
 
 ### 📝 Practical Example
 
 ```c
-const char *original = "Hello, world!";
+char *original = "Hello, world!";
 char *copy = ft_strdup(original);
 
 // Result:
-// copy = "Hello, world!" (stored in a new allocated space)
-// original remains unchanged
+// copy points to a new allocated string "Hello, world!"
+// Modifying 'copy' does not affect 'original'
 ```
 
 ---
 
 ### 🎯 Conclusion
 
-The `ft_strdup()` function ensures the creation of an **independent copy** of a given string, making it useful whenever the original string may change or be freed, but the program still needs to preserve its contents.
-
----
+`ft_strdup()` guarantees safe string duplication, providing an independent copy in dynamically allocated memory. In `get_next_line()`, it is a **key utility** for buffer initialization and safe handling of remaining data.
 
 ---
 
 # 📋 Funcionamento da `ft_strdup()`
 
-A função `ft_strdup()` é responsável por criar uma **cópia de uma string fornecida**, retornando uma versão recém-alocada dela. Esta implementação reproduz o comportamento da função padrão `strdup()` da biblioteca C, garantindo que a string retornada esteja em um espaço de memória **independente**, que deve ser liberado posteriormente pelo chamador.
+A função `ft_strdup()` cria uma **nova cópia da string fornecida** `s`. Ela aloca memória dinamicamente, duplica todos os caracteres da string original e adiciona um terminador nulo `\0` no final. Isso garante que a nova string seja **independente** da original, prevenindo alterações não intencionais.
 
 ---
 
 ### 🗂️ Estrutura de funcionamento
 
 * **Parâmetro de entrada:**
-  `const char *s` → String que será duplicada.
-* **Variáveis locais:**
 
-  * `len`: armazena o tamanho da string original, calculado com `ft_strlen()`.
-  * `dup`: ponteiro para a nova área de memória onde a cópia será armazenada.
-  * `i`: índice de iteração usado no processo de cópia.
+  * `const char *s` → string a ser duplicada.
+
+* **Valor de retorno:**
+
+  * Ponteiro para a nova cópia alocada de `s`.
+  * `NULL` se `s` for inválida ou se a alocação de memória falhar.
 
 ---
 
 ### ✅ Validações
 
 1. **Verificação de ponteiro nulo:**
-   Se `s` for `NULL`, a função retorna `NULL`, evitando acessos inválidos à memória.
-2. **Alocação de memória:**
 
-   * A função aloca `len + 1` bytes para armazenar a cópia da string mais o caractere nulo terminador.
-   * Se a alocação falhar, retorna `NULL`.
+   * Se `s` for `NULL`, a função retorna `NULL`.
+
+2. **Verificação de alocação:**
+
+   * Se a alocação de memória falhar, a função retorna `NULL`.
 
 ---
 
 ### 🔄 Fluxo principal
 
-1. **Cópia dos caracteres:**
-
-   * Cada caractere da string original é copiado um a um para o espaço alocado (`dup[i] = s[i]`).
-2. **Terminação da string:**
-
-   * Após a cópia, o terminador nulo `\0` é adicionado explicitamente no final para garantir o encerramento correto da string.
+1. Calcula o tamanho de `s` usando `ft_strlen()`.
+2. Aloca memória para a cópia, incluindo o terminador nulo.
+3. Copia cada caractere de `s` para o novo espaço.
+4. Adiciona `'\0'` para finalizar a string.
+5. Retorna o ponteiro para a string duplicada.
 
 ---
 
-### 🔗 Contexto no get_next_line
+### 🔗 Contexto no get\_next\_line
 
-No projeto get_next_line, ft_strdup() é essencial para manipular linhas de forma segura. Como o buffer utilizado nas leituras é reutilizado a cada chamada, retornar seu conteúdo diretamente seria inseguro. Ao duplicar as strings, ft_strdup() garante que cada linha extraída permaneça preservada e independente, evitando que seja sobrescrita pelo buffer em leituras subsequentes.
+No projeto `get_next_line()`, `ft_strdup()` é essencial para **inicializar o buffer de backup**. Quando não existe backup anterior, utiliza-se `ft_strdup("")` para criar uma string vazia válida. Também é usada para **duplicar o conteúdo restante** ao final do arquivo antes de liberar o backup original, garantindo que nenhum dado seja perdido e mantendo a segurança da memória.
 
 ---
 
 ### 📝 Exemplo prático
 
 ```c
-const char *original = "Olá, mundo!";
+char *original = "Olá, mundo!";
 char *copia = ft_strdup(original);
 
 // Resultado:
-// copia = "Olá, mundo!" (armazenada em um novo espaço alocado)
-// original permanece inalterada
+// copia aponta para uma nova string alocada "Olá, mundo!"
+// Alterar 'copia' não modifica 'original'
 ```
 
 ---
 
 ### 🎯 Conclusão
 
-A função `ft_strdup()` garante a criação de uma **cópia independente** de uma string fornecida, sendo útil sempre que a string original possa ser alterada ou liberada, mas ainda seja necessário preservar o seu conteúdo.
-
----
+`ft_strdup()` garante a duplicação segura de strings, fornecendo uma cópia independente em memória alocada dinamicamente. No `get_next_line()`, é uma **utilidade chave** para inicialização de buffers e manipulação segura dos dados restantes.
