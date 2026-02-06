@@ -224,44 +224,42 @@ This repository contains an organized version of the project for portfolio purpo
 
 ```
 get_next_line/
-├── .gitignore                # Git ignore rules
-├── Makefile                  # Build automation
-├── README.md                 # This file
-├── docs/                     # Documentation
-│   ├── functions/            # Individual function docs
-│   │   ├── extract_line.md
-│   │   ├── ft_strchr.md
-│   │   ├── ft_strdup.md
-│   │   ├── ft_strjoin_free.md
-│   │   ├── ft_strlen.md
-│   │   ├── ft_substr.md
-│   │   ├── get_next_line.md
-│   │   ├── initialize_backup.md
-│   │   ├── read_buffer.md
-│   │   └── return_remaining_content.md
-│   ├── algorithm.md          # Algorithm explanation
-│   ├── get_next_line.c.md    # Main file documentation
-│   ├── get_next_line.h.md    # Header documentation
-│   └── get_next_line_utils.md # Utils documentation
-├── examples/                 # Usage examples
-│   ├── basic_usage.c         # Basic file reading
-│   ├── multiple_fd_bonus.c   # Multiple file descriptors
-│   └── stdin_example.c       # Reading from stdin
-├── tests/                    # Test suites
-│   ├── bonus/
-│   │   └── test_gnl_bonus.c  # Bonus test suite
-│   └── mandatory/
-│       └── test_gnl.c        # Mandatory test suite
-├── include/                  # Header files
-│   ├── get_next_line.h       # Mandatory header
-│   └── get_next_line_bonus.h # Bonus header
-└── src/                      # Source code
-    ├── bonus/                # Bonus implementation
-    │   ├── get_next_line_bonus.c
-    │   └── get_next_line_utils_bonus.c
-    └── mandatory/            # Mandatory implementation
-        ├── get_next_line.c
-        └── get_next_line_utils.c
+├── docs/                                      # Documentation
+│     ├── functions/                           # Individual function docs
+│     │   ├── extract_line.md
+│     │   ├── ft_strchr.md
+│     │   ├── ft_strdup.md
+│     │   ├── ft_strjoin_free.md
+│     │   ├── ft_strlen.md
+│     │   ├── ft_substr.md
+│     │   ├── get_next_line.md
+│     │   ├── initialize_backup.md
+│     │   ├── read_buffer.md
+│     │   └── return_remaining_content.md
+│     ├── get_next_line.c.md                   # Main file documentation
+│     ├── get_next_line.h.md                   # Header documentation
+│     ├── get_next_line_bonus.c.md             # Main BONUS file documentation
+│     ├── get_next_line_bonus.h.md             # Header BONUS documentation
+│     ├── get_next_line_utils.md               # Utils documentation
+│     └── get_next_line_utils_bonus.md         # Utils BONUS documentation
+├── examples/                                  # Usage examples
+│    ├── basic_usage.c                         # Basic file reading
+│    ├── multiple_fd_bonus.c                   # Multiple file descriptors
+│    └── stdin_example.c                       # Reading from stdin
+├── include/                                   # Header files
+│    ├── get_next_line.h                       # Mandatory header
+│    └── get_next_line_bonus.h                 # Bonus header
+├── src/                                       # Source code
+│    ├── get_next_line.c
+│    ├── get_next_line_bonus.c
+│    ├── get_next_line_utils.c
+│    └── get_next_line_utils_bonus.c
+├── tests/                                     # Test suites
+│   ├── test_gnl.c                             # Mandatory test suite
+│   └── test_gnl_bonus.c                       # Bonus test suite
+├── .gitignore                                 # Git ignore rules
+├── Makefile                                   # Build automation
+└── README.md                                  # This file
 ```
 
 ### 42 Submission (Vogsphere)
