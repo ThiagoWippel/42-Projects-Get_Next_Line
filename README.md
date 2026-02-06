@@ -1,78 +1,120 @@
+*This project was created as part of the 42 curriculum by twippel-.*
+
 # Get Next Line
 
-![C](https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white)
-![42 School](https://img.shields.io/badge/42-000000?style=for-the-badge&logo=42&logoColor=white)
-[![Norminette](https://img.shields.io/badge/Norminette-passing-brightgreen?style=for-the-badge)](https://github.com/42School/norminette)
+## Description
 
-> A memory-efficient C function that reads files line by line with dynamic buffer management, capable of handling files of any size with configurable buffer sizes.
+Get Next Line (GNL) is a project that implements a function to read lines from a file descriptor, one at a time. This seemingly simple task introduces the concept of **static variables** in C and challenges you to manage memory efficiently while dealing with variable buffer sizes.
 
-> Uma função C eficiente em memória que lê arquivos linha por linha com gerenciamento dinâmico de buffer, capaz de lidar com arquivos de qualquer tamanho com buffers configuráveis.
+The function returns one line per call, handling any buffer size and maintaining reading state between calls. This makes it an essential utility for file I/O operations and a foundational building block for future 42 projects.
 
-## Overview / Visão Geral
+## Algorithm Explanation
 
-Get Next Line is a C function developed as part of the 42 School curriculum that solves the fundamental problem of reading files line by line without loading the entire file into memory. The implementation demonstrates advanced concepts in memory management, file descriptor handling, and static variables.
+The implementation uses a **static variable** to preserve data between function calls, allowing the function to "remember" leftover content from previous reads.
 
-Get Next Line é uma função C desenvolvida como parte do currículo da 42 School que resolve o problema fundamental de ler arquivos linha por linha sem carregar o arquivo inteiro na memória. A implementação demonstra conceitos avançados em gerenciamento de memória, manipulação de file descriptors e variáveis estáticas.
+### Core Strategy
 
-### Key Features / Características Principais
+1. **Buffered Reading**: Read chunks of `BUFFER_SIZE` bytes at a time (instead of byte-by-byte)
+2. **Static Backup**: Store unprocessed content in a static variable that persists between calls
+3. **Line Extraction**: Search for newline characters (`\n`) and return complete lines
+4. **Remainder Management**: Keep any leftover content after a newline for the next call
 
-- **Universal File Support**: Works with any readable file descriptor
-- **Dynamic Buffer Management**: Configurable buffer size from 1 byte to 10MB+
-- **Memory Safe**: Zero memory leaks with proper cleanup
-- **Static Variable Usage**: Maintains state between function calls
-- **Standard Compliant**: Follows 42 School norminette standards
+### Step-by-Step Process
 
-<br> 
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Call get_next_line(fd)                                      │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+┌─────────────────────────────────────────────────────────────┐
+│ Check if backup already contains a complete line            │
+│ (i.e., has '\n' character)                                  │
+└─────────────────────────────────────────────────────────────┘
+                            │
+                 ┌──────────┴──────────┐
+                 │                     │
+            Yes  │                     │  No
+                 ▼                     ▼
+    ┌─────────────────────┐   ┌──────────────────────┐
+    │ Extract line up to  │   │ Read BUFFER_SIZE     │
+    │ and including '\n'  │   │ bytes from fd        │
+    └─────────────────────┘   └──────────────────────┘
+                 │                     │
+                 │                     ▼
+                 │            ┌──────────────────────┐
+                 │            │ Append to backup     │
+                 │            └──────────────────────┘
+                 │                     │
+                 │                     ▼
+                 │            ┌──────────────────────┐
+                 │            │ Repeat until '\n'    │
+                 │            │ found or EOF reached │
+                 │            └──────────────────────┘
+                 │                     │
+                 └─────────┬───────────┘
+                           ▼
+                ┌─────────────────────┐
+                │ Return the line     │
+                └─────────────────────┘
+```
 
-- **Suporte Universal a Arquivos:** Funciona com qualquer file descriptor legível
-- **Gerenciamento Dinâmico de Buffer:** Tamanho de buffer configurável de 1 byte a 10MB+
-- **Seguro em Memória:** Zero vazamentos de memória com limpeza adequada
-- **Uso de Variáveis Estáticas:** Mantém estado entre chamadas da função
-- **Conforme Padrões** Segue os padrões norminette da 42 School
+### Why This Approach?
 
-## Technical Specifications / Especificações Técnicas
+- **Memory Efficient**: Only allocates what's needed
+- **Flexible**: Works with any buffer size (1 to 10,000,000+)
+- **Persistent State**: Static variable maintains context between calls
+- **Edge Case Handling**: Properly manages EOF, empty lines, and files without trailing newlines
 
-### Function Prototype / Protótipo da Função
+### Key Implementation Details
+
+The implementation is split across several helper functions:
+
+- `read_buffer()`: Reads `BUFFER_SIZE` bytes and appends to backup
+- `extract_line()`: Finds `\n` in backup and extracts the complete line
+- `return_remaining_content()`: Handles the last line when EOF is reached
+- `initialize_backup()`: Sets up the static variable on first call
+
+### Buffer Size Impact
+
+The `BUFFER_SIZE` defines how many bytes are read from the file descriptor in each `read()` call:
+
+- **Small buffer (1-10)**: More system calls, slower but minimal memory
+- **Medium buffer (42-1024)**: Balanced performance
+- **Large buffer (10000+)**: Fewer system calls, faster but more memory usage
+
+The function works correctly regardless of buffer size, even with edge cases like `BUFFER_SIZE=1` or `BUFFER_SIZE=10000000`.
+
+## Instructions
+
+### Compilation
+
+The project must be compiled with a defined `BUFFER_SIZE`:
+
+```bash
+cc -Wall -Wextra -Werror -D BUFFER_SIZE=42 get_next_line.c get_next_line_utils.c
+```
+
+You can test with different buffer sizes:
+
+```bash
+# Small buffer
+cc -Wall -Wextra -Werror -D BUFFER_SIZE=1 get_next_line.c get_next_line_utils.c
+
+# Large buffer
+cc -Wall -Wextra -Werror -D BUFFER_SIZE=10000 get_next_line.c get_next_line_utils.c
+```
+
+### Usage
+
+Include the header in your program:
+
 ```c
-char *get_next_line(int fd);
+#include "get_next_line.h"
 ```
 
-### Parameters / Parâmetros
-- `fd`: File descriptor to read from / File descriptor para leitura
+Example usage:
 
-### Return Values / Valores de Retorno
-- **Success / Sucesso**: Pointer to string containing the next line (including `\n` if present) / Ponteiro para string contendo a próxima linha (incluindo `\n` se presente)
-- **End of file / Fim do arquivo**: `NULL`
-- **Error / Erro**: `NULL` (invalid fd, memory allocation failure / fd inválido, falha na alocação de memória)
-
-### Core Algorithm / Algoritmo Principal
-1. **Buffer Management / Gerenciamento de Buffer**: Reads data in configurable chunks / Lê dados em blocos configuráveis
-2. **State Persistence / Persistência de Estado**: Uses static variables to maintain reading position / Usa variáveis estáticas para manter posição de leitura
-3. **Line Assembly / Montagem de Linha**: Efficiently extracts complete lines from buffer / Extrai eficientemente linhas completas do buffer
-4. **Memory Safety / Segurança de Memória**: Automatic cleanup and error handling / Limpeza automática e tratamento de erros
-
-## Installation & Usage / Instalação e Uso
-
-### Basic Compilation / Compilação Básica
-```bash
-gcc -Wall -Wextra -Werror -D BUFFER_SIZE=42 \
-    src/get_next_line.c src/get_next_line_utils.c your_main.c \
-    -I include/
-```
-
-### Buffer Size Configuration / Configuração do Tamanho do Buffer
-```bash
-# Memory-efficient (1 byte) / Eficiente em memória (1 byte)
-gcc -D BUFFER_SIZE=1 src/*.c your_main.c -I include/
-
-# Balanced performance (recommended) / Performance balanceada (recomendado)
-gcc -D BUFFER_SIZE=42 src/*.c your_main.c -I include/
-
-# High-performance (large files) / Alta performance (arquivos grandes)
-gcc -D BUFFER_SIZE=8192 src/*.c your_main.c -I include/
-```
-
-### Usage Example / Exemplo de Uso
 ```c
 #include "get_next_line.h"
 #include <fcntl.h>
@@ -82,15 +124,15 @@ int main(void)
 {
     int     fd;
     char    *line;
-    
-    fd = open("example.txt", O_RDONLY);
+
+    fd = open("test.txt", O_RDONLY);
     if (fd == -1)
         return (1);
-        
+    
     while ((line = get_next_line(fd)) != NULL)
     {
         printf("%s", line);
-        free(line);  // Always free returned line / Sempre libere a linha retornada
+        free(line);
     }
     
     close(fd);
@@ -98,86 +140,155 @@ int main(void)
 }
 ```
 
-## Project Structure / Estrutura do Projeto
+Reading from standard input:
+
+```c
+#include "get_next_line.h"
+#include <stdio.h>
+
+int main(void)
+{
+    char *line;
+    
+    printf("Enter text (Ctrl+D to end):\n");
+    while ((line = get_next_line(0)) != NULL)
+    {
+        printf("You entered: %s", line);
+        free(line);
+    }
+    return (0);
+}
+```
+
+## Function Prototype
+
+```c
+char *get_next_line(int fd);
+```
+
+**Parameters:**
+- `fd`: File descriptor to read from
+
+**Return Value:**
+- The line read, including the terminating `\n` (if present)
+- `NULL` if there's nothing left to read or an error occurred
+
+**Helper Functions:**
+
+All helper functions are implemented in `get_next_line_utils.c`:
+
+| Function | Description |
+|----------|-------------|
+| `ft_strlen` | Calculates string length |
+| `ft_strchr` | Locates character in string |
+| `ft_strdup` | Duplicates a string |
+| `ft_substr` | Extracts substring |
+| `ft_strjoin_free` | Joins two strings and frees the first |
+
+## Project Structure
 
 ```
-├── src/                        # Source files / Arquivos fonte
-│   ├── get_next_line.c        # Main implementation / Implementação principal
-│   └── get_next_line_utils.c  # Utility functions / Funções utilitárias
-├── include/                   # Header files / Arquivos de cabeçalho
-│   └── get_next_line.h       # Function prototypes / Protótipos das funções
-└── docs/                     # Detailed documentation / Documentação detalhada
-    └── *.md                  # Individual function documentation / Documentação individual das funções
+get_next_line/
+├── get_next_line.c           # Main function implementation
+├── get_next_line_utils.c     # Helper functions
+├── get_next_line.h           # Header file
+└── README.md                 # This file
 ```
 
-## Testing & Quality Assurance / Testes e Garantia de Qualidade
+## Bonus Part
 
-The implementation has been thoroughly tested using industry-standard tools:
-A implementação foi rigorosamente testada usando ferramentas padrão da indústria:
+The bonus implementation adds support for:
 
-### Test Suites Used / Suítes de Teste Utilizadas
-- **Francinette**: Official 42 testing framework - All tests passed / Framework oficial de testes da 42 - Todos os testes aprovados
-- **gnlTester**: Community testing suite - Comprehensive validation / Suíte de testes da comunidade - Validação abrangente
-- **Valgrind**: Memory leak detection - Zero leaks confirmed / Detecção de vazamentos de memória - Zero vazamentos confirmados
-- **Norminette**: Code style compliance - 100% conformant / Conformidade de estilo de código - 100% conforme
+1. **Multiple file descriptors**: Can read from different FDs without losing track of each one's state
+2. **Single static variable**: Manages all FDs using only one static variable (an array)
 
-### Validation Results / Resultados da Validação
-- **Memory Safety / Segurança de Memória**: No memory leaks detected across all test scenarios / Nenhum vazamento de memória detectado em todos os cenários de teste
-- **Buffer Compatibility / Compatibilidade de Buffer**: Tested with buffer sizes from 1 to 10,000,000 bytes / Testado com tamanhos de buffer de 1 a 10.000.000 bytes
-- **Edge Cases / Casos Limite**: Successfully handles empty files, files without newlines, and large files / Lida com sucesso com arquivos vazios, arquivos sem quebras de linha e arquivos grandes
+Bonus files:
+- `get_next_line_bonus.c`
+- `get_next_line_bonus.h`
+- `get_next_line_utils_bonus.c`
 
-## Documentation / Documentação
+Example with multiple file descriptors:
 
-Comprehensive technical documentation is available in the `docs/` directory with individual `.md` files for each utility function, featuring:
+```c
+int fd1 = open("file1.txt", O_RDONLY);
+int fd2 = open("file2.txt", O_RDONLY);
 
-Documentação técnica abrangente está disponível no diretório `docs/` com arquivos `.md` individuais para cada função utilitária, incluindo:
+char *line1 = get_next_line(fd1);  // Read from file1
+char *line2 = get_next_line(fd2);  // Read from file2
+char *line3 = get_next_line(fd1);  // Continue reading file1
+```
 
-- **Complete Implementation / Implementação Completa**: Full source code for each function / Código fonte completo para cada função
-- **Bilingual Explanations / Explicações Bilíngues**: Technical details in English and Portuguese / Detalhes técnicos em inglês e português  
-- **Practical Examples / Exemplos Práticos**: Usage patterns and code samples / Padrões de uso e exemplos de código
-- **Project Context / Contexto do Projeto**: How each function integrates with get_next_line / Como cada função se integra com get_next_line
+## Testing
 
-## Technical Requirements / Requisitos Técnicos
+Recommended testers for GNL:
 
-### Mandatory Constraints / Restrições Obrigatórias
-- **Allowed functions / Funções permitidas**: `read()`, `malloc()`, `free()`
-- **Forbidden / Proibido**: `lseek()`, global variables, libft usage / variáveis globais, uso da libft
-- **Compilation flags / Flags de compilação**: `-Wall -Wextra -Werror`
-- **Buffer size / Tamanho do buffer**: Configurable via `-D BUFFER_SIZE=n` / Configurável via `-D BUFFER_SIZE=n`
+- [Tripouille/gnlTester](https://github.com/Tripouille/gnlTester)
+- [xicodomingues/francinette](https://github.com/xicodomingues/francinette)
 
-### Code Standards / Padrões de Código
-- 42 School Norminette compliance / Conformidade com norminette da 42 School
-- Maximum 25 lines per function / Máximo 25 linhas por função
-- Proper error handling and memory management / Tratamento adequado de erros e gerenciamento de memória
-- No memory leaks under any circumstances / Nenhum vazamento de memória sob qualquer circunstância
+### Manual Testing
 
-## Development Insights / Insights de Desenvolvimento
+Create test files with different characteristics:
 
-This project demonstrates proficiency in:
-Este projeto demonstra proficiência em:
+```bash
+# File with normal lines
+echo -e "Line 1\nLine 2\nLine 3" > test1.txt
 
-- **Low-level C programming / Programação C de baixo nível** with direct system calls / com chamadas diretas do sistema
-- **Memory management / Gerenciamento de memória** with dynamic allocation strategies / com estratégias de alocação dinâmica
-- **Algorithm optimization / Otimização de algoritmos** for efficient file processing / para processamento eficiente de arquivos
-- **Static variable manipulation / Manipulação de variáveis estáticas** for state persistence / para persistência de estado
-- **Error handling / Tratamento de erros** across multiple failure scenarios / em múltiplos cenários de falha
+# File without trailing newline
+echo -n "No newline at end" > test2.txt
 
-The implementation showcases solutions to complex challenges including buffer management with varying sizes, memory-safe string operations, and robust file descriptor handling.
+# Empty file
+touch test3.txt
 
-A implementação apresenta soluções para desafios complexos incluindo gerenciamento de buffer com tamanhos variáveis, operações de string seguras em memória e manipulação robusta de file descriptors.
+# File with empty lines
+echo -e "\n\n\n" > test4.txt
 
-## License / Licença
+# Very long line
+python3 -c "print('A' * 10000)" > test5.txt
+```
 
-This project is for educational purposes as part of 42 School curriculum.
-Este projeto é para fins educacionais como parte do currículo da 42 School.
+Test with different buffer sizes:
 
-## Author / Autor
+```bash
+cc -D BUFFER_SIZE=1 -Wall -Wextra -Werror get_next_line.c get_next_line_utils.c main.c && ./a.out
+cc -D BUFFER_SIZE=42 -Wall -Wextra -Werror get_next_line.c get_next_line_utils.c main.c && ./a.out
+cc -D BUFFER_SIZE=9999 -Wall -Wextra -Werror get_next_line.c get_next_line_utils.c main.c && ./a.out
+```
 
-**Thiago Wippel**
-- LinkedIn: [Thiago Wippel](https://www.linkedin.com/in/thiagowippelc/)
+## Resources
+
+### References
+
+- **man read(2)**: System call documentation for the read function
+- **man open(2)**: File descriptor creation and management
+- **man close(2)**: Proper file descriptor cleanup
+- **Static Variables in C**: Understanding storage duration and linkage
+  - [GeeksforGeeks - Static Variables](https://www.geeksforgeeks.org/static-variables-in-c/)
+  - [C Programming - Static Keyword](https://www.programiz.com/c-programming/c-static-keyword)
+- **File I/O in C**: Working with file descriptors
+  - [GNU C Library - Low-Level I/O](https://www.gnu.org/software/libc/manual/html_node/Low_002dLevel-I_002fO.html)
+
+### AI Usage
+
+During the development of this project, I used AI assistance (Claude) for:
+
+- **Concept clarification**: Understanding the behavior and lifetime of static variables in C
+- **Edge case identification**: Discussing potential edge cases such as:
+  - Files without trailing newlines
+  - Very small buffer sizes (BUFFER_SIZE=1)
+  - Very large buffer sizes (BUFFER_SIZE=10000000)
+  - Reading from stdin vs regular files
+  - Handling EOF conditions
+- **Memory management strategies**: Reviewing proper allocation and deallocation patterns to avoid memory leaks
+- **Algorithm optimization**: Discussing trade-offs between different approaches (e.g., reading character by character vs buffered reading)
+- **Debugging assistance**: Identifying memory leaks and segmentation faults through systematic debugging approaches
+
+All code was written, tested, and validated by me. AI was used as a learning tool to understand file I/O concepts, static variable behavior, and best practices for memory management, not to generate ready-made solutions.
+
+## Author
+
+**Thiago Wippel** (twippel-)  
+42 São Paulo
 
 ---
 
-*Part of the 42 School Common Core curriculum - a comprehensive computer science program focused on practical skills development and peer-to-peer learning.*
-
-*Parte do currículo Common Core da 42 School - um programa abrangente de ciência da computação focado no desenvolvimento de habilidades práticas e aprendizado peer-to-peer.*
+*This is a student project for 42 School. The goal is educational, focusing on understanding file I/O, static variables, and memory management in C.*
