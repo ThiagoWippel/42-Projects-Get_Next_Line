@@ -87,6 +87,37 @@ The function works correctly regardless of buffer size, even with edge cases lik
 
 ## Instructions
 
+### Quick Start (Portfolio Version)
+
+Clone and test the project:
+
+```bash
+git clone <your-repo-url>
+cd get_next_line
+
+# Show available commands
+make help
+
+# Build and run mandatory tests
+make test
+
+# Build and run bonus tests
+make bonus
+./test_gnl_bonus
+
+# Test with different buffer sizes
+make test1      # BUFFER_SIZE=1
+make test42     # BUFFER_SIZE=42
+make test10000  # BUFFER_SIZE=10000000
+
+# Run all tests with different buffer sizes
+make testall
+
+# Run examples
+make example_basic    # Basic file reading
+make example_stdin    # Reading from stdin
+```
+
 ### Compilation
 
 The project must be compiled with a defined `BUFFER_SIZE`:
@@ -187,36 +218,159 @@ All helper functions are implemented in `get_next_line_utils.c`:
 
 ## Project Structure
 
+### Portfolio Repository (GitHub)
+
+This repository contains an organized version of the project for portfolio purposes:
+
 ```
 get_next_line/
-├── get_next_line.c           # Main function implementation
-├── get_next_line_utils.c     # Helper functions
-├── get_next_line.h           # Header file
-└── README.md                 # This file
+├── .gitignore                # Git ignore rules
+├── Makefile                  # Build automation
+├── README.md                 # This file
+├── docs/                     # Documentation
+│   ├── functions/            # Individual function docs
+│   │   ├── extract_line.md
+│   │   ├── ft_strchr.md
+│   │   ├── ft_strdup.md
+│   │   ├── ft_strjoin_free.md
+│   │   ├── ft_strlen.md
+│   │   ├── ft_substr.md
+│   │   ├── get_next_line.md
+│   │   ├── initialize_backup.md
+│   │   ├── read_buffer.md
+│   │   └── return_remaining_content.md
+│   ├── algorithm.md          # Algorithm explanation
+│   ├── get_next_line.c.md    # Main file documentation
+│   ├── get_next_line.h.md    # Header documentation
+│   └── get_next_line_utils.md # Utils documentation
+├── examples/                 # Usage examples
+│   ├── basic_usage.c         # Basic file reading
+│   ├── multiple_fd_bonus.c   # Multiple file descriptors
+│   └── stdin_example.c       # Reading from stdin
+├── tests/                    # Test suites
+│   ├── bonus/
+│   │   └── test_gnl_bonus.c  # Bonus test suite
+│   └── mandatory/
+│       └── test_gnl.c        # Mandatory test suite
+├── include/                  # Header files
+│   ├── get_next_line.h       # Mandatory header
+│   └── get_next_line_bonus.h # Bonus header
+└── src/                      # Source code
+    ├── bonus/                # Bonus implementation
+    │   ├── get_next_line_bonus.c
+    │   └── get_next_line_utils_bonus.c
+    └── mandatory/            # Mandatory implementation
+        ├── get_next_line.c
+        └── get_next_line_utils.c
 ```
+
+### 42 Submission (Vogsphere)
+
+For 42 submission, use a flat structure in the root:
+
+**Mandatory files:**
+
+```
+get_next_line/
+├── get_next_line.c
+├── get_next_line_utils.c
+└── get_next_line.h
+```
+
+**Bonus files:**
+
+```
+get_next_line/
+├── get_next_line.c           # Mandatory
+├── get_next_line_utils.c     # Mandatory
+├── get_next_line.h           # Mandatory
+├── get_next_line_bonus.c     # Bonus
+├── get_next_line_bonus.h     # Bonus
+└── get_next_line_utils_bonus.c  # Bonus
+```
+
+**Note:** Both mandatory and bonus files can coexist in the same Vogsphere repository.
 
 ## Bonus Part
 
-The bonus implementation adds support for:
+The bonus implementation is **complete** and adds support for:
 
-1. **Multiple file descriptors**: Can read from different FDs without losing track of each one's state
+1. **Multiple file descriptors**: Reads from different FDs simultaneously without losing track of each one's state
 2. **Single static variable**: Manages all FDs using only one static variable (an array)
 
-Bonus files:
-- `get_next_line_bonus.c`
-- `get_next_line_bonus.h`
-- `get_next_line_utils_bonus.c`
+### Implementation Details
 
-Example with multiple file descriptors:
+The bonus uses a static array to maintain separate backup strings for each file descriptor:
 
 ```c
-int fd1 = open("file1.txt", O_RDONLY);
-int fd2 = open("file2.txt", O_RDONLY);
-
-char *line1 = get_next_line(fd1);  // Read from file1
-char *line2 = get_next_line(fd2);  // Read from file2
-char *line3 = get_next_line(fd1);  // Continue reading file1
+static char *backup[FD_MAX];  // One backup per FD
 ```
+
+This allows the function to:
+- Handle up to `FD_MAX` (1024) file descriptors simultaneously
+- Maintain independent reading state for each FD
+- Switch between files without losing position
+
+### Bonus Files
+
+Located in `src/bonus/`:
+- `get_next_line_bonus.c` - Main function with FD array support
+- `get_next_line_utils_bonus.c` - Helper functions
+- Header: `include/get_next_line_bonus.h`
+
+### Usage Example
+
+```c
+#include "get_next_line_bonus.h"
+#include <fcntl.h>
+#include <stdio.h>
+
+int main(void)
+{
+    int fd1 = open("file1.txt", O_RDONLY);
+    int fd2 = open("file2.txt", O_RDONLY);
+    int fd3 = open("file3.txt", O_RDONLY);
+
+    // Read from different files in any order
+    char *line1 = get_next_line(fd1);  // Read first line of file1
+    char *line2 = get_next_line(fd2);  // Read first line of file2
+    char *line3 = get_next_line(fd1);  // Read second line of file1
+    char *line4 = get_next_line(fd3);  // Read first line of file3
+    char *line5 = get_next_line(fd2);  // Read second line of file2
+
+    // Each FD maintains its own state independently
+    free(line1);
+    free(line2);
+    free(line3);
+    free(line4);
+    free(line5);
+
+    close(fd1);
+    close(fd2);
+    close(fd3);
+    
+    return (0);
+}
+```
+
+### Testing the Bonus
+
+```bash
+# Compile bonus
+make bonus
+
+# Run bonus tests
+./test_gnl_bonus
+
+# Test bonus example
+make example_multi_fd  # Multiple file descriptors example
+```
+
+The bonus test suite (`tests/bonus/test_gnl_bonus.c`) verifies:
+- Multiple FDs work independently
+- Interleaved reads maintain correct state
+- No memory leaks with multiple FDs
+- Edge cases with FD limits
 
 ## Testing
 
