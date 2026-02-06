@@ -1,0 +1,28 @@
+# Object files
+*.o
+*.a
+
+# Executables
+*.out
+a.out
+test
+tester
+
+# Debug files
+*.dSYM/
+*.su
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Test outputs
+test_files/
+*.log
