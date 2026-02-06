@@ -27,6 +27,11 @@ static char	*extract_line(char **backup)
 	if (!line)
 		return (NULL);
 	temp = ft_substr(*backup, line_len, ft_strlen(*backup) - line_len);
+	if (!temp)
+	{
+		free(line);
+		return (NULL);
+	}
 	free(*backup);
 	*backup = temp;
 	return (line);
