@@ -243,20 +243,20 @@ get_next_line/
 │     ├── get_next_line_utils.md               # Utils documentation
 │     └── get_next_line_utils_bonus.md         # Utils BONUS documentation
 ├── examples/                                  # Usage examples
-│    ├── basic_usage.c                         # Basic file reading
-│    ├── multiple_fd_bonus.c                   # Multiple file descriptors
-│    └── stdin_example.c                       # Reading from stdin
+│     ├── basic_usage.c                        # Basic file reading
+│     ├── multiple_fd_bonus.c                  # Multiple file descriptors
+│     └── stdin_example.c                      # Reading from stdin
 ├── include/                                   # Header files
-│    ├── get_next_line.h                       # Mandatory header
-│    └── get_next_line_bonus.h                 # Bonus header
+│     ├── get_next_line.h                      # Mandatory header
+│     └── get_next_line_bonus.h                # Bonus header
 ├── src/                                       # Source code
-│    ├── get_next_line.c
-│    ├── get_next_line_bonus.c
-│    ├── get_next_line_utils.c
-│    └── get_next_line_utils_bonus.c
+│     ├── get_next_line.c
+│     ├── get_next_line_bonus.c
+│     ├── get_next_line_utils.c
+│     └── get_next_line_utils_bonus.c
 ├── tests/                                     # Test suites
-│   ├── test_gnl.c                             # Mandatory test suite
-│   └── test_gnl_bonus.c                       # Bonus test suite
+│     ├── test_gnl.c                           # Mandatory test suite
+│     └── test_gnl_bonus.c                     # Bonus test suite
 ├── .gitignore                                 # Git ignore rules
 ├── Makefile                                   # Build automation
 └── README.md                                  # This file
