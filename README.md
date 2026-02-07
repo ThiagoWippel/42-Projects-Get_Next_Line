@@ -220,7 +220,6 @@ get_next_line/
 │     ├── get_next_line_utils.c
 │     └── get_next_line_utils_bonus.c
 ├── .gitignore                                 # Git ignore rules
-├── Makefile                                   # Build automation
 └── README.md                                  # This file
 ```
 
@@ -349,14 +348,14 @@ This implementation has been validated against both testers:
 **Tripouille/gnlTester:**
 
 ```bash
-# Clone the tester
+# Clone the tester in your GNL directory
 git clone https://github.com/Tripouille/gnlTester.git
 cd gnlTester
 
-# Test mandatory (update path in Makefile to your GNL directory)
+# Run mandatory tests
 make m
 
-# Test bonus
+# Run bonus tests
 make b
 ```
 
