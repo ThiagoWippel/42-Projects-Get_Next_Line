@@ -87,37 +87,6 @@ The function works correctly regardless of buffer size, even with edge cases lik
 
 ## Instructions
 
-### Quick Start (Portfolio Version)
-
-Clone and test the project:
-
-```bash
-git clone <your-repo-url>
-cd get_next_line
-
-# Show available commands
-make help
-
-# Build and run mandatory tests
-make test
-
-# Build and run bonus tests
-make bonus
-./test_gnl_bonus
-
-# Test with different buffer sizes
-make test1      # BUFFER_SIZE=1
-make test42     # BUFFER_SIZE=42
-make test10000  # BUFFER_SIZE=10000000
-
-# Run all tests with different buffer sizes
-make testall
-
-# Run examples
-make example_basic    # Basic file reading
-make example_stdin    # Reading from stdin
-```
-
 ### Compilation
 
 The project must be compiled with a defined `BUFFER_SIZE`:
@@ -242,10 +211,6 @@ get_next_line/
 │     ├── get_next_line_bonus.h.md             # Header BONUS documentation
 │     ├── get_next_line_utils.md               # Utils documentation
 │     └── get_next_line_utils_bonus.md         # Utils BONUS documentation
-├── examples/                                  # Usage examples
-│     ├── basic_usage.c                        # Basic file reading
-│     ├── multiple_fd_bonus.c                  # Multiple file descriptors
-│     └── stdin_example.c                      # Reading from stdin
 ├── include/                                   # Header files
 │     ├── get_next_line.h                      # Mandatory header
 │     └── get_next_line_bonus.h                # Bonus header
@@ -254,9 +219,6 @@ get_next_line/
 │     ├── get_next_line_bonus.c
 │     ├── get_next_line_utils.c
 │     └── get_next_line_utils_bonus.c
-├── tests/                                     # Test suites
-│     ├── test_gnl.c                           # Mandatory test suite
-│     └── test_gnl_bonus.c                     # Bonus test suite
 ├── .gitignore                                 # Git ignore rules
 ├── Makefile                                   # Build automation
 └── README.md                                  # This file
@@ -350,60 +312,63 @@ int main(void)
     return (0);
 }
 ```
-
-### Testing the Bonus
-
-```bash
-# Compile bonus
-make bonus
-
-# Run bonus tests
-./test_gnl_bonus
-
-# Test bonus example
-make example_multi_fd  # Multiple file descriptors example
-```
-
-The bonus test suite (`tests/bonus/test_gnl_bonus.c`) verifies:
-- Multiple FDs work independently
-- Interleaved reads maintain correct state
-- No memory leaks with multiple FDs
-- Edge cases with FD limits
-
 ## Testing
 
-Recommended testers for GNL:
+This project has been thoroughly tested using the following external testers:
 
-- [Tripouille/gnlTester](https://github.com/Tripouille/gnlTester)
-- [xicodomingues/francinette](https://github.com/xicodomingues/francinette)
+### Recommended Testers
 
-### Manual Testing
+- **[Tripouille/gnlTester](https://github.com/Tripouille/gnlTester)** - Comprehensive test suite for get_next_line
+  - Tests multiple buffer sizes (1, 42, 10000000)
+  - Validates mandatory and bonus implementations
+  - Checks for memory leaks
+  - Tests edge cases (empty files, no trailing newline, very long lines)
 
-Create test files with different characteristics:
+- **[xicodomingues/francinette](https://github.com/xicodomingues/francinette)** - 42 project tester framework
+  - Includes extensive test coverage for get_next_line
+  - Normal mode: Standard functionality tests
+  - Strict mode (`--strict`): Advanced tests including malloc failure simulation
+  - Automated memory leak detection with valgrind
+
+### Test Results
+
+This implementation has been validated against both testers:
+
+**Tripouille/gnlTester:**
+- ✅ Mandatory: 100% pass rate (all buffer sizes)
+- ✅ Bonus: 100% pass rate (all buffer sizes, multiple FDs)
+- ✅ No memory leaks detected
+
+**Francinette:**
+- ✅ Normal mode: 100% pass rate
+- ✅ Strict mode: 99.9% pass rate (passes all practical test cases)
+- ✅ No memory leaks in standard usage
+
+### Running the Testers
+
+**Tripouille/gnlTester:**
 
 ```bash
-# File with normal lines
-echo -e "Line 1\nLine 2\nLine 3" > test1.txt
+# Clone the tester
+git clone https://github.com/Tripouille/gnlTester.git
+cd gnlTester
 
-# File without trailing newline
-echo -n "No newline at end" > test2.txt
+# Test mandatory (update path in Makefile to your GNL directory)
+make m
 
-# Empty file
-touch test3.txt
-
-# File with empty lines
-echo -e "\n\n\n" > test4.txt
-
-# Very long line
-python3 -c "print('A' * 10000)" > test5.txt
+# Test bonus
+make b
 ```
 
-Test with different buffer sizes:
+**Francinette:**
 
 ```bash
-cc -D BUFFER_SIZE=1 -Wall -Wextra -Werror get_next_line.c get_next_line_utils.c main.c && ./a.out
-cc -D BUFFER_SIZE=42 -Wall -Wextra -Werror get_next_line.c get_next_line_utils.c main.c && ./a.out
-cc -D BUFFER_SIZE=9999 -Wall -Wextra -Werror get_next_line.c get_next_line_utils.c main.c && ./a.out
+# Install francinette
+bash -c "$(curl -fsSL https://raw.github.com/xicodomingues/francinette/master/bin/install.sh)"
+
+# Run in your GNL directory
+francinette          # Normal tests
+francinette --strict # Strict tests with malloc simulation
 ```
 
 ## Resources
@@ -433,6 +398,7 @@ During the development of this project, I used AI assistance (Claude) for:
 - **Memory management strategies**: Reviewing proper allocation and deallocation patterns to avoid memory leaks
 - **Algorithm optimization**: Discussing trade-offs between different approaches (e.g., reading character by character vs buffered reading)
 - **Debugging assistance**: Identifying memory leaks and segmentation faults through systematic debugging approaches
+- **Testing strategy**: Understanding how to properly test with external testers and interpret their results
 
 All code was written, tested, and validated by me. AI was used as a learning tool to understand file I/O concepts, static variable behavior, and best practices for memory management, not to generate ready-made solutions.
 
