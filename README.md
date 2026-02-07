@@ -404,7 +404,7 @@ All code was written, tested, and validated by me. AI was used as a learning too
 
 ## Author
 
-**Thiago Wippel** (twippel-)  
+**Thiago Wippel Chaves** (twippel-)  
 42 São Paulo
 
 ---
